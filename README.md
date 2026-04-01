@@ -22,8 +22,8 @@ This is a demo project that uses localStorage as a mock database.
 
 ## Demo Credentials
 
-- Admin: admin@college.edu / password123
-- Student: student1@college.edu / password123
+- Admin: a@a.com / a
+- Student: s@s.com / s
 
 ## Project Structure
 

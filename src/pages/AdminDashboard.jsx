@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiGetJobs, apiCreateJob, apiGetAllApplications, apiUpdateApplicationStatus } from '../lib/storage';
 import { LogOut, Plus, Users, Download, Activity } from 'lucide-react';
+import { getAiInterviewQuestions } from '../lib/aiResumeAdvisor';
 
 export default function AdminDashboard() {
     const { user, logout } = useAuth();
@@ -9,6 +10,10 @@ export default function AdminDashboard() {
     const [jobs, setJobs] = useState([]);
     const [apps, setApps] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [questionsByApp, setQuestionsByApp] = useState({});
+    const [questionLoadingByApp, setQuestionLoadingByApp] = useState({});
+    const [questionErrorByApp, setQuestionErrorByApp] = useState({});
+    const [visibleQuestionsByApp, setVisibleQuestionsByApp] = useState({});
 
     // New Job Form State
     const [showForm, setShowForm] = useState(false);
@@ -51,6 +56,40 @@ export default function AdminDashboard() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const handleGenerateQuestions = async (app) => {
+        const key = import.meta.env.VITE_OPENROUTER_API_KEY
+            || import.meta.env.VITE_OPENAI_API_KEY
+            || localStorage.getItem('placement_openrouter_api_key')
+            || localStorage.getItem('placement_ai_api_key')
+            || '';
+
+        if (!key) {
+            setQuestionErrorByApp(prev => ({ ...prev, [app.id]: 'Missing AI API key in environment.' }));
+            return;
+        }
+
+        setQuestionErrorByApp(prev => ({ ...prev, [app.id]: '' }));
+        setQuestionLoadingByApp(prev => ({ ...prev, [app.id]: true }));
+        try {
+            const result = await getAiInterviewQuestions({
+                apiKey: key,
+                candidateName: app.studentName,
+                roleTitle: app.jobTitle,
+                company: app.jobCompany,
+                resumeText: app.studentResumeText,
+                jobDescription: app.jobDescription
+            });
+
+            setQuestionsByApp(prev => ({ ...prev, [app.id]: result }));
+            setVisibleQuestionsByApp(prev => ({ ...prev, [app.id]: true }));
+        } catch (err) {
+            setQuestionErrorByApp(prev => ({ ...prev, [app.id]: err.message || 'Failed to generate questions.' }));
+            setVisibleQuestionsByApp(prev => ({ ...prev, [app.id]: true }));
+        } finally {
+            setQuestionLoadingByApp(prev => ({ ...prev, [app.id]: false }));
+        }
     };
 
     if (loading) return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading Dashboard...</div>;
@@ -163,7 +202,8 @@ export default function AdminDashboard() {
                             </thead>
                             <tbody>
                                 {apps.map(app => (
-                                    <tr key={app.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                                    <Fragment key={app.id}>
+                                    <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                                         <td style={{ padding: '1rem' }}>{app.studentName}<br /><span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{app.studentEmail}</span></td>
                                         <td style={{ padding: '1rem' }}>{app.jobCompany}<br /><span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{app.jobTitle}</span></td>
                                         <td style={{ padding: '1rem' }}>
@@ -177,7 +217,15 @@ export default function AdminDashboard() {
                                             </span>
                                         </td>
                                         <td style={{ padding: '1rem' }}>
-                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                <button
+                                                    onClick={() => handleGenerateQuestions(app)}
+                                                    className="btn btn-outline"
+                                                    style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', borderRadius: '4px' }}
+                                                    disabled={questionLoadingByApp[app.id]}
+                                                >
+                                                    {questionLoadingByApp[app.id] ? 'Generating...' : (questionsByApp[app.id] ? 'Regenerate' : 'AI Questions')}
+                                                </button>
                                                 {app.status === 'pending' && (
                                                     <>
                                                         <button onClick={() => handleStatusChange(app.id, 'shortlisted')} className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>Shortlist</button>
@@ -187,6 +235,48 @@ export default function AdminDashboard() {
                                             </div>
                                         </td>
                                     </tr>
+                                    {visibleQuestionsByApp[app.id] && (questionsByApp[app.id] || questionErrorByApp[app.id]) && (
+                                        <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'rgba(255,255,255,0.45)' }}>
+                                            <td colSpan="5" style={{ padding: '1rem 1rem 1.2rem 1rem' }}>
+                                                <div style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(0,0,0,0.07)', borderRadius: '12px', padding: '0.9rem' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                                                        <div>
+                                                            <p style={{ fontSize: '0.85rem', fontWeight: '700', margin: 0 }}>AI Interview Kit</p>
+                                                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>{app.studentName} • {app.jobCompany} {app.jobTitle}</p>
+                                                        </div>
+                                                        <button
+                                                            className="btn btn-outline"
+                                                            style={{ padding: '0.25rem 0.55rem', fontSize: '0.75rem', borderRadius: '6px' }}
+                                                            onClick={() => setVisibleQuestionsByApp(prev => ({ ...prev, [app.id]: false }))}
+                                                        >
+                                                            Hide
+                                                        </button>
+                                                    </div>
+
+                                                    {questionErrorByApp[app.id] && (
+                                                        <p style={{ color: 'var(--danger)', fontSize: '0.83rem', marginBottom: '0.5rem' }}>{questionErrorByApp[app.id]}</p>
+                                                    )}
+
+                                                    {questionsByApp[app.id] && (
+                                                        <>
+                                                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.6rem' }}>
+                                                                {questionsByApp[app.id].intro}
+                                                            </p>
+                                                            <div style={{ display: 'grid', gap: '0.55rem' }}>
+                                                                {questionsByApp[app.id].questions.slice(0, 5).map((q, idx) => (
+                                                                    <div key={`${app.id}-${idx}`} style={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: '10px', padding: '0.6rem 0.7rem', background: '#fff' }}>
+                                                                        <p style={{ margin: 0, fontSize: '0.86rem', lineHeight: 1.35 }}><b>Q{idx + 1}.</b> {q.question}</p>
+                                                                        <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.74rem', color: 'var(--text-muted)' }}><b>Focus:</b> {q.focus}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                    </Fragment>
                                 ))}
                                 {apps.length === 0 && <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center' }}>No applications received yet.</td></tr>}
                             </tbody>

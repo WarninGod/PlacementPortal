@@ -101,8 +101,8 @@ export default function Auth() {
                 {isLogin && (
                     <div style={{ marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-light)', textAlign: 'center', background: 'rgba(255,255,255,0.5)', padding: '0.5rem', borderRadius: '4px' }}>
                         <strong>Demo Credentials:</strong><br />
-                        Student: student1@college.edu / password123<br />
-                        Admin: admin@college.edu / password123
+                        Student: s@s.com / s<br />
+                        Admin: a@a.com / a
                     </div>
                 )}
             </div>
