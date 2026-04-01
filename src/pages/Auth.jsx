@@ -31,9 +31,9 @@ export default function Auth() {
     };
 
     return (
-        <div className="container" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="glass-panel slideUp" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem' }}>
-                <h2 style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '2rem' }}>
+        <div className="container" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="glass-panel slideUp" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
+                <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>
                     {isLogin ? 'Welcome Back' : 'Create Account'}
                 </h2>
 

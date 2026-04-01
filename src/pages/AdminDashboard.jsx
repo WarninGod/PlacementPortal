@@ -53,14 +53,14 @@ export default function AdminDashboard() {
         document.body.removeChild(link);
     };
 
-    if (loading) return <div style={{ textAlign: 'center', padding: '5rem' }}>Loading Dashboard...</div>;
+    if (loading) return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading Dashboard...</div>;
 
     return (
-        <div className="container slideUp" style={{ padding: '2rem' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div className="container slideUp" style={{ padding: '1.5rem' }}>
+            <header className="header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem' }}>TPO Admin Panel</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Manage drives and student applications</p>
+                    <h1>TPO Admin Panel</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Manage drives and student applications</p>
                 </div>
                 <button onClick={logout} className="btn btn-outline" style={{ borderRadius: 'var(--radius-sm)' }}>
                     <LogOut size={18} /> Logout
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
             </header>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '1rem', borderBottom: '2px solid rgba(0,0,0,0.05)', marginBottom: '2rem' }}>
+            <div className="tabs-flex" style={{ display: 'flex', gap: '1rem', borderBottom: '2px solid rgba(0,0,0,0.05)', marginBottom: '2rem' }}>
                 <button
                     onClick={() => setActiveTab('drives')}
                     style={{
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
                     {showForm && (
                         <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem', borderLeft: '4px solid var(--primary)' }}>
                             <h3 style={{ marginBottom: '1.5rem' }}>Create Placement Drive</h3>
-                            <form onSubmit={handlePostJob} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <form onSubmit={handlePostJob} className="form-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div className="input-group">
                                     <label>Company Name</label>
                                     <input type="text" required className="input-field" value={jobForm.company} onChange={e => setJobForm({ ...jobForm, company: e.target.value })} />
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
                         </div>
                     )}
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                    <div className="job-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
                         {jobs.map(job => (
                             <div key={job.id} className="glass-panel" style={{ padding: '1.5rem' }}>
                                 <h3 style={{ color: 'var(--primary)', marginBottom: '0.25rem' }}>{job.title}</h3>
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
             {activeTab === 'applications' && (
                 <div>
                     <h2>Review Applications</h2>
-                    <div className="glass-panel" style={{ marginTop: '1.5rem', overflowX: 'auto' }}>
+                    <div className="table-scroll glass-panel" style={{ marginTop: '1.5rem', overflowX: 'auto', '-webkitOverflowScrolling': 'touch' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                             <thead>
                                 <tr style={{ borderBottom: '2px solid rgba(0,0,0,0.05)', color: 'var(--text-muted)' }}>

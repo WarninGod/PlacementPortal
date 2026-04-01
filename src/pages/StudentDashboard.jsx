@@ -76,14 +76,14 @@ export default function StudentDashboard() {
 
     const hasApplied = (jobId) => myApps.some(a => a.jobId === jobId);
 
-    if (loading) return <div style={{ textAlign: 'center', padding: '5rem' }}>Loading Dashboard...</div>;
+    if (loading) return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading Dashboard...</div>;
 
     return (
-        <div className="container slideUp" style={{ padding: '2rem' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+        <div className="container slideUp" style={{ padding: '1.5rem' }}>
+            <header className="header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem' }}>Welcome, {user.name}</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Student Dashboard • Placement Portal</p>
+                    <h1>Welcome, {user.name}</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Student Dashboard • Placement Portal</p>
                 </div>
                 <button onClick={logout} className="btn btn-outline" style={{ borderRadius: 'var(--radius-sm)' }}>
                     <LogOut size={18} /> Logout
@@ -93,7 +93,7 @@ export default function StudentDashboard() {
             {error && <div style={{ padding: '1rem', background: 'var(--danger-bg)', color: 'var(--danger)', borderRadius: 'var(--radius-sm)', marginBottom: '1rem' }}>{error}</div>}
             {success && <div style={{ padding: '1rem', background: 'var(--success-bg)', color: 'var(--success)', borderRadius: 'var(--radius-sm)', marginBottom: '1rem' }}>{success}</div>}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '2rem' }}>
+            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '2rem' }}>
 
                 {/* Main Job Board */}
                 <div>
@@ -101,16 +101,16 @@ export default function StudentDashboard() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         {jobs.length === 0 ? <p>No placement drives currently available.</p> : jobs.map(job => (
                             <div key={job.id} className="glass-panel" style={{ padding: '1.5rem' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                <div className="job-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                                     <div>
-                                        <h3 style={{ fontSize: '1.25rem', color: 'var(--primary-hover)', marginBottom: '0.25rem' }}>{job.title}</h3>
-                                        <p style={{ fontWeight: '600' }}>{job.company}</p>
+                                        <h3 style={{ color: 'var(--primary-hover)', marginBottom: '0.25rem' }}>{job.title}</h3>
+                                        <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{job.company}</p>
                                     </div>
-                                    <span className="badge" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>{job.salary}</span>
+                                    <span className="badge" style={{ background: 'var(--primary-light)', color: 'var(--primary)', whiteSpace: 'nowrap', marginLeft: '0.5rem' }}>{job.salary}</span>
                                 </div>
                                 <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>{job.description}</p>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Deadline: {new Date(job.deadline).toLocaleDateString()}</span>
+                                <div className="job-card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Deadline: {new Date(job.deadline).toLocaleDateString()}</span>
 
                                     {hasApplied(job.id) ? (
                                         <button className="btn btn-secondary" disabled style={{ opacity: 0.7 }}>
@@ -130,11 +130,11 @@ export default function StudentDashboard() {
                 {/* Sidebar */}
                 <div>
                     {/* Resume Card */}
-                    <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem', textAlign: 'center' }}>
+                    <div className="resume-card glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem', textAlign: 'center' }}>
                         <div style={{ display: 'inline-flex', background: 'var(--primary-light)', color: 'var(--primary)', padding: '1rem', borderRadius: '50%', marginBottom: '1rem' }}>
                             <FileText size={32} />
                         </div>
-                        <h3 style={{ marginBottom: '0.5rem' }}>Your Resume</h3>
+                        <h3>Your Resume</h3>
 
                         {user.resume ? (
                             <p style={{ color: 'var(--success)', fontWeight: '600', marginBottom: '1rem' }}>✓ Uploaded</p>

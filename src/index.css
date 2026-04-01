@@ -231,3 +231,159 @@ a:hover {
 .badge-danger { background: var(--danger-bg); color: var(--danger); }
 .badge-pending { background: #e2e8f0; color: #475569; }
 
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  h3 {
+    font-size: 1.1rem !important;
+  }
+
+  .btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .glass-panel {
+    padding: 1rem !important;
+  }
+
+  .input-field {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Form grid collapse */
+  .form-grid-2col {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Dashboard grid collapse */
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  /* Header flex wrap */
+  .header-flex {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+
+  .header-flex button {
+    width: 100%;
+  }
+
+  /* Tab buttons responsive */
+  .tabs-flex {
+    flex-wrap: wrap;
+    gap: 0.5rem !important;
+  }
+
+  .tabs-flex button {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Job card flex responsive */
+  .job-card-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  .job-card-footer {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Admin table scrollable */
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-scroll table {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+
+  .table-scroll th,
+  .table-scroll td {
+    padding: 0.75rem 0.5rem !important;
+  }
+
+  /* Resume upload card */
+  .resume-card {
+    text-align: center;
+  }
+
+  .resume-card h3 {
+    font-size: 1rem !important;
+  }
+
+  /* Job grid on admin */
+  .job-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 0 0.75rem;
+  }
+
+  h1 {
+    font-size: 1.25rem !important;
+  }
+
+  h2 {
+    font-size: 1.1rem !important;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .glass-panel {
+    padding: 0.75rem !important;
+    border-radius: 0.5rem;
+  }
+
+  .input-group {
+    margin-bottom: 1rem;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .tabs-flex button {
+    padding: 0.5rem 0.4rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  .table-scroll th,
+  .table-scroll td {
+    padding: 0.5rem 0.25rem !important;
+    font-size: 0.75rem !important;
+  }
+}
+
