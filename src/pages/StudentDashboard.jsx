@@ -294,17 +294,17 @@ export default function StudentDashboard() {
 
                         {aiFeedback && (
                             <div style={{ marginTop: '1rem', padding: '0.85rem', borderRadius: '0.5rem', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                                <p style={{ fontSize: '0.8rem', color: '#0f172a', marginBottom: '0.35rem', fontWeight: 700 }}>AI Resume Score: {aiFeedback.rating}/100</p>
+                                <p style={{ fontSize: '0.8rem', color: '#0f172a', marginBottom: '0.35rem', fontWeight: 700 }}>Resume Score: {aiFeedback.rating}/100</p>
                                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.6rem' }}>{aiFeedback.summary}</p>
 
-                                <p style={{ fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem' }}>AI Strengths</p>
+                                <p style={{ fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem' }}>Strengths</p>
                                 <ul style={{ paddingLeft: '1rem', margin: 0, fontSize: '0.78rem', marginBottom: '0.6rem' }}>
                                     {aiFeedback.strengths.map((item, idx) => (
                                         <li key={`s-${idx}`}>{item}</li>
                                     ))}
                                 </ul>
 
-                                <p style={{ fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem' }}>AI Improvements</p>
+                                <p style={{ fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem' }}>Improvements</p>
                                 <ul style={{ paddingLeft: '1rem', margin: 0, fontSize: '0.78rem', marginBottom: '0.6rem' }}>
                                     {aiFeedback.improvements.map((item, idx) => (
                                         <li key={`i-${idx}`}>{item}</li>
