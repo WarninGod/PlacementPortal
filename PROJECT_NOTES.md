@@ -17,7 +17,6 @@
 9. [CSS & Styling — Glassmorphism Design](#9-css--styling--glassmorphism-design)
 10. [Key React Concepts Used](#10-key-react-concepts-used)
 11. [Data Flow Diagram](#11-data-flow-diagram)
-12. [Common Interview / Viva Questions](#12-common-interview--viva-questions)
 
 ---
 
@@ -64,6 +63,14 @@ A **College Placement Portal** that connects students with placement drives post
 - **Why**: Provides icons like `LogOut`, `Briefcase`, `Upload`, etc. used throughout the UI
 - **Usage**: `import { Briefcase } from 'lucide-react'` then `<Briefcase size={20} />`
 
+### PDF.js (pdfjs-dist)
+- **What**: A Portable Document Format (PDF) parser built with HTML5.
+- **Why**: Allows extracting and reading raw text from uploaded PDF resumes directly in the browser, eliminating the need for a backend server to handle file parsing.
+
+### AI Integration (OpenRouter / OpenAI APIs)
+- **What**: API integrations utilizing advanced LLM models.
+- **Why**: Used to dynamically evaluate student resumes against available job listings, provide actionable "AI Resume Advisor" feedback, and generate intelligent interview questions.
+
 ### localStorage (Mock Database)
 - **What**: Built-in browser storage that persists data even after closing the browser
 - **Why**: Simulates a backend database without needing a server (Node.js, Express, MongoDB, etc.)
@@ -88,6 +95,8 @@ placement-portal/
 │   ├── context/
 │   │   └── AuthContext.jsx ← ⭐ Authentication state management (Context API)
 │   ├── lib/
+│   │   ├── aiResumeAdvisor.js ← ⭐ AI integration for resume matching and interview questions
+│   │   ├── resumeParser.js ← ⭐ Client-side PDF text extraction
 │   │   └── storage.js      ← ⭐ Mock API functions (CRUD using localStorage)
 │   └── pages/
 │       ├── Landing.jsx     ← Home/welcome page
@@ -257,9 +266,10 @@ This file simulates a REST API backend. Instead of making HTTP requests to a ser
 
 | Key | What it stores | Structure |
 |-----|---------------|-----------|
-| `placement_users` | All registered users | `[{ id, name, email, password, role, resume }]` |
+| `placement_users` | All registered users | `[{ id, name, email, password, role, resume, resumeText }]` |
 | `placement_jobs` | All placement drives | `[{ id, title, company, description, salary, deadline }]` |
 | `placement_applications` | All job applications | `[{ id, studentId, jobId, resume, status, appliedAt }]` |
+| `placement_ai_api_key` | Optional API Key | String key for OpenRouter/OpenAI requests |
 
 ### Initial Data Seeding (`initializeStorageData`):
 
@@ -402,14 +412,16 @@ const [error, setError] = useState('');       // Error messages
 const [success, setSuccess] = useState('');   // Success messages
 ```
 
-**Resume Upload Process**:
+**Resume Upload Process** (Includes AI & Parsing):
 ```
 1. User clicks "Update Resume" → triggers hidden file input
 2. File selected → handleFileUpload() runs
 3. Validates file size (max 2MB)
-4. Uses FileReader API to convert file to Base64 string
-5. Calls apiUpdateUserResume() to save in localStorage
-6. Updates user context so the rest of the app knows resume exists
+4. Uses FileReader API to convert file to Base64 string for storage
+5. Uses `pdfjs-dist` to automatically extract raw text directly in the browser
+6. Calls apiUpdateUserResumeText() to save parsed text and resume content in localStorage
+7. AI feature `getAiResumeInsights()` then evaluates the extracted text against available jobs and provides ATS scores, strengths, and customized improvement suggestions.
+8. Updates user context so the rest of the app knows resume exists
 ```
 
 **What is Base64?**
@@ -462,6 +474,11 @@ When submitted, calls `apiCreateJob(jobForm)` → clears form → reloads data.
 - Admin sees a table with: Student Name, Company & Role, Resume (download), Status, Actions
 - For "pending" applications, admin can click "Shortlist" or "Reject"
 - These call `apiUpdateApplicationStatus(appId, newStatus)`
+
+**AI Interview Kit**:
+- Admin can click on "AI Questions" under Actions.
+- Uses `getAiInterviewQuestions()` to send the student's previously parsed resume text along with the specific job's details to the AI provider.
+- Generates 3-5 customized, relevant technical or HR questions designed specifically to probe the student's fit for that exact role based on their CV.
 
 **Resume Download**:
 ```jsx
@@ -656,56 +673,6 @@ Student applies → status: "pending"
 
 ---
 
-## 12. Common Interview / Viva Questions
-
-### Q1: What is React and why did you use it?
-**A**: React is a JavaScript library for building user interfaces using reusable components. I used it because it provides efficient DOM updates through its virtual DOM, component-based architecture for code reusability, and a rich ecosystem of tools and libraries.
-
-### Q2: What is the Virtual DOM?
-**A**: The Virtual DOM is a lightweight JavaScript copy of the real DOM. When state changes, React creates a new Virtual DOM, compares it with the previous one (diffing), and updates only the changed parts in the real DOM (reconciliation). This makes updates very fast.
-
-### Q3: What is the difference between localStorage and a real database?
-**A**: localStorage stores data as key-value string pairs in the browser (max ~5MB), is accessible only on that device/browser, and has no security or querying capabilities. A real database (like MongoDB, PostgreSQL) stores data on a server, supports complex queries, handles multiple users, and provides security features.
-
-### Q4: How does authentication work in your project?
-**A**: When a user logs in, the app checks their credentials against data stored in localStorage. If valid, the user object (without the password) is stored in React state (via Context API) and in localStorage (for session persistence). A PrivateRoute component checks this state before allowing access to protected pages.
-
-### Q5: What is Context API and why did you use it?
-**A**: Context API is React's built-in way to share data across components without prop drilling (passing props through many levels). I used it for authentication state — the user's login status needs to be accessible by the navbar, route guards, and dashboard pages, all at different levels of the component tree.
-
-### Q6: What is the difference between `useState` and `useEffect`?
-**A**: `useState` manages data that can change over time (like form inputs, loading states). When state changes, the component re-renders. `useEffect` handles side effects — things that happen outside of rendering, like API calls, localStorage reads, or timers. It runs after the component renders.
-
-### Q7: How is file upload handled?
-**A**: The resume is uploaded using an HTML file input. The JavaScript FileReader API reads the file and converts it to a Base64 encoded string (a text representation of the binary file). This string is stored in localStorage as part of the user's data.
-
-### Q8: What is Glassmorphism?
-**A**: Glassmorphism is a UI design trend that creates a frosted-glass effect using: semi-transparent backgrounds (`rgba`), backdrop blur (`backdrop-filter: blur()`), subtle borders, and soft shadows. It creates depth and visual hierarchy.
-
-### Q9: What is role-based access control?
-**A**: It's a security pattern where users are assigned roles (student, admin), and each role has specific permissions. In this project, route guards (PrivateRoute) check the user's role before granting access to certain pages.
-
-### Q10: How would you improve this project with a real backend?
-**A**: I would add:
-- A **Node.js + Express** server for the backend API
-- **MongoDB** or **PostgreSQL** for persistent data storage
-- **JWT (JSON Web Tokens)** for secure authentication
-- **Bcrypt** for password hashing (currently stored in plain text)
-- **Multer** for file uploads to server/cloud storage (like AWS S3)
-- **CORS** and input validation for security
-
-### Q11: What is SPA (Single Page Application)?
-**A**: An SPA loads a single HTML page and dynamically updates content using JavaScript without full page reloads. React Router handles URL changes by swapping components client-side, making navigation feel instant. The entire app is in `index.html`, and React renders different content based on the URL.
-
-### Q12: What are React Hooks?
-**A**: Hooks are special functions that let you use React features (state, lifecycle, context) in functional components. The ones used in this project:
-- `useState` — manage state
-- `useEffect` — side effects (API calls, etc.)
-- `useContext` — access Context API data
-- `useNavigate` — programmatic navigation (from React Router)
-
----
-
 ## Quick Reference — Demo Credentials
 
 | Role    | Email                    | Password      |
@@ -715,4 +682,4 @@ Student applies → status: "pending"
 
 ---
 
-*These notes cover everything you need to understand, explain, and defend this project in your college viva/presentation. Good luck! 🎓*
+*These notes cover everything you need to understand, explain, and defend this project. Good luck! 🎓*

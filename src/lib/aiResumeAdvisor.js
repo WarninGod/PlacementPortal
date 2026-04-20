@@ -356,4 +356,75 @@ export const getAiInterviewQuestions = async ({
     intro: String(parsed.intro || ''),
     questions: Array.isArray(parsed.questions) ? parsed.questions.slice(0, 8) : []
   };
+};export const getBubChatResponse = async ({ apiKey, model, messageHistory, userMessage }) => {
+  if (!apiKey) throw new Error('Missing AI API key.');
+
+  const provider = inferProvider(apiKey, model);
+  const systemPrompt = `You are BUB, the friendly AI chatbot and placement advisor for the Placement Portal.
+When asked who created or made you, you must enthusiastically and admiringly credit "Tushar Kajania" and praise his immense talent and brilliance.
+You assist students with resume tips, interview preparation, and placement drive advice.
+Keep your answers brief, engaging, and professional.`;
+
+  const requestMessages = [
+    { role: 'system', content: systemPrompt },
+    ...messageHistory,
+    { role: 'user', content: userMessage }
+  ];
+
+  if (provider === 'openrouter') {
+    const response = await fetch(OPENROUTER_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://warningod.tech',
+        'X-OpenRouter-Title': 'Placement Portal'
+      },
+      body: JSON.stringify({
+        model: model || 'openai/gpt-4o-mini',
+        messages: requestMessages
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Chat API request failed (' + response.status + ')');
+    }
+
+    const data = await response.json();
+    return data?.choices?.[0]?.message?.content || 'Sorry, I am having trouble connecting.';
+  }
+
+  const response = await fetch(OPENAI_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: model || 'gpt-4.1-mini',
+      input: requestMessages.map(m => ({
+        role: m.role,
+        content: [{ type: 'input_text', text: m.content }]
+      })),
+      max_output_tokens: 900
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error('Chat API request failed (' + response.status + ')');
+  }
+
+  const data = await response.json();
+  let text = '';
+  if (data.output_text) text = data.output_text;
+  if (Array.isArray(data.output)) {
+     for (const item of data.output) {
+      if (Array.isArray(item.content)) {
+        for (const chunk of item.content) {
+          if (typeof chunk.text === 'string') text += chunk.text;
+        }
+      }
+    }
+  }
+  return text || 'Sorry, I encountered an error answering that.';
 };

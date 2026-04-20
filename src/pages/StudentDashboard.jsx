@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { apiGetJobs, apiApplyForJob, apiGetApplicationsForStudent, apiUpdateUserResume, apiUpdateUserResumeText, apiGetResumeFeedback } from '../lib/storage';
+import { apiGetJobs, apiApplyForJob, apiGetApplicationsForStudent, apiUpdateUserResume, apiUpdateUserResumeText, apiGetResumeFeedback, apiUpdateUserAIFeedback } from '../lib/storage';
 import { LogOut, Upload, Briefcase, FileText, CheckCircle, Sparkles } from 'lucide-react';
 import { getAiResumeInsights } from '../lib/aiResumeAdvisor';
 
@@ -14,11 +14,16 @@ export default function StudentDashboard() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [resumeFeedback, setResumeFeedback] = useState(null);
-    const [aiFeedback, setAiFeedback] = useState(null);
+    const [aiFeedback, setAiFeedback] = useState(user?.aiFeedback || null);
 
     useEffect(() => {
-        loadData();
-    }, [user.id]);
+        if (user?.id) {
+            loadData();
+            if (user?.aiFeedback) {
+                setAiFeedback(user.aiFeedback);
+            }
+        }
+    }, [user?.id]);
 
     const loadData = async () => {
         try {
@@ -58,7 +63,9 @@ export default function StudentDashboard() {
             });
 
             const updatedUser = await apiUpdateUserResume(user.id, base64);
-            const contextUpdates = { resume: updatedUser.resume };
+            const contextUpdates = { resume: updatedUser.resume, aiFeedback: null };
+            setAiFeedback(null);
+            await apiUpdateUserAIFeedback(user.id, null);
 
             let extractedResumeText = user.resumeText || '';
             if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
@@ -89,6 +96,8 @@ export default function StudentDashboard() {
                         apiKey: key
                     });
                     setAiFeedback(insights);
+                    await apiUpdateUserAIFeedback(user.id, insights);
+                    updateUserInContext({ ...contextUpdates, aiFeedback: insights });
                 } catch {
                     // Keep local analysis as fallback.
                 } finally {

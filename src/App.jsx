@@ -8,6 +8,7 @@ import Landing from './pages/Landing';
 import Auth from './pages/Auth';
 import StudentDashboard from './pages/StudentDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import BubChatbot from './components/BubChatbot';
 
 // Custom Private Route
 const PrivateRoute = ({ children, roleRequired }) => {
@@ -47,6 +48,7 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      <BubChatbot />
     </div>
   );
 }

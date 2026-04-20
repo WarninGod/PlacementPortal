@@ -134,6 +134,19 @@ export const apiUpdateUserResumeText = async (userId, resumeText) => {
   return safeUser;
 };
 
+export const apiUpdateUserAIFeedback = async (userId, aiFeedback) => {
+  await delay();
+  const users = getStorageItem(USERS_KEY);
+  const userIndex = users.findIndex(u => u.id === userId);
+  if (userIndex === -1) throw new Error('User not found');
+
+  users[userIndex].aiFeedback = aiFeedback;
+  setStorageItem(USERS_KEY, users);
+
+  const { password: _, ...safeUser } = users[userIndex];
+  return safeUser;
+};
+
 const extractSkills = (text = '') => {
   const normalized = text.toLowerCase();
   return KNOWN_SKILLS.filter(skill => normalized.includes(skill));
