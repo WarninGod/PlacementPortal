@@ -15,6 +15,7 @@ export default function StudentDashboard() {
     const [success, setSuccess] = useState('');
     const [resumeFeedback, setResumeFeedback] = useState(null);
     const [aiFeedback, setAiFeedback] = useState(user?.aiFeedback || null);
+    const [aiError, setAiError] = useState('');
 
     useEffect(() => {
         if (user?.id) {
@@ -53,6 +54,7 @@ export default function StudentDashboard() {
 
         setUploading(true);
         setError('');
+        setAiError('');
 
         try {
             const base64 = await new Promise((resolve, reject) => {
@@ -93,16 +95,22 @@ export default function StudentDashboard() {
                     const insights = await getAiResumeInsights({
                         resumeText: extractedResumeText,
                         jobs,
-                        apiKey: key
+                        apiKey: key,
+                        model: import.meta.env.VITE_OPENROUTER_MODEL
                     });
                     setAiFeedback(insights);
                     await apiUpdateUserAIFeedback(user.id, insights);
                     updateUserInContext({ ...contextUpdates, aiFeedback: insights });
-                } catch {
-                    // Keep local analysis as fallback.
+                } catch (aiError) {
+                    console.error('AI resume analysis failed:', aiError);
+                    setAiError('AI analysis is currently unavailable. Showing local resume feedback instead.');
                 } finally {
                     setAiLoading(false);
                 }
+            } else if (!extractedResumeText) {
+                setAiError('AI analysis needs text from a PDF resume. Showing local resume feedback instead.');
+            } else if (!key) {
+                setAiError('AI analysis is not configured. Showing local resume feedback instead.');
             }
 
             const hasAutoExtraction = Boolean(extractedResumeText && extractedResumeText.trim().length > 0);
@@ -279,6 +287,10 @@ export default function StudentDashboard() {
 
                         {aiLoading && (
                             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.6rem' }}>Running AI analysis...</p>
+                        )}
+
+                        {aiError && (
+                            <p style={{ fontSize: '0.8rem', color: 'var(--warning)', marginBottom: '0.6rem' }}>{aiError}</p>
                         )}
 
                         {(resumeFeedback || aiFeedback) && (
