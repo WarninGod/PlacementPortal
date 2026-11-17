@@ -253,6 +253,11 @@ export const apiCreateJob = async (jobDetails) => {
 export const apiApplyForJob = async (studentId, jobId, resumeBase64) => {
   await delay();
   const applications = getStorageItem(APPS_KEY);
+  if (!resumeBase64) {
+    const users = getStorageItem(USERS_KEY);
+    resumeBase64 = users.find(user => user.id === studentId)?.resume;
+  }
+  if (!resumeBase64) throw new Error('Please upload your resume first before applying.');
   
   // check if already applied
   if (applications.find(a => a.studentId === studentId && a.jobId === jobId)) {

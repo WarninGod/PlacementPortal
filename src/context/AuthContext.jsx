@@ -5,6 +5,16 @@ const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
+const persistSession = (userData) => {
+    const { resume: _resume, ...sessionUser } = userData;
+    try {
+        localStorage.setItem('placement_session', JSON.stringify(sessionUser));
+    } catch (error) {
+        console.error('Unable to save the login session:', error);
+        throw new Error('Browser storage is full. Clear site data and try again.');
+    }
+};
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -21,14 +31,14 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         const userData = await apiLogin(email, password);
         setUser(userData);
-        localStorage.setItem('placement_session', JSON.stringify(userData));
+        persistSession(userData);
         return userData;
     };
 
     const registerStudent = async (name, email, password) => {
         const userData = await apiRegisterStudent(name, email, password);
         setUser(userData);
-        localStorage.setItem('placement_session', JSON.stringify(userData));
+        persistSession(userData);
         return userData;
     };
 
@@ -40,7 +50,7 @@ export const AuthProvider = ({ children }) => {
     const updateUserInContext = (updates) => {
         const newUser = { ...user, ...updates };
         setUser(newUser);
-        localStorage.setItem('placement_session', JSON.stringify(newUser));
+        persistSession(newUser);
     }
 
     const value = {

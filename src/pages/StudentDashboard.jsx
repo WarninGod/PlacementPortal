@@ -47,8 +47,8 @@ export default function StudentDashboard() {
         const file = e.target.files[0];
         if (!file) return;
 
-        if (file.size > 2 * 1024 * 1024) {
-            setError("File is too large. Max 2MB.");
+        if (file.size > 1.5 * 1024 * 1024) {
+            setError("File is too large for browser storage. Max 1.5MB.");
             return;
         }
 
@@ -129,7 +129,7 @@ export default function StudentDashboard() {
             return;
         }
         try {
-            await apiApplyForJob(user.id, jobId, user.resume);
+            await apiApplyForJob(user.id, jobId);
             setSuccess('Applied successfully!');
             setTimeout(() => setSuccess(''), 3000);
             loadData(); // reload applications
